@@ -11,7 +11,8 @@ const {
 const sass = require('gulp-sass');
 const browserSync = require('browser-sync').create();
 const uglify = require('gulp-uglify');
-const uglifycss = require('gulp-uglifycss');
+const uglifyCss = require('gulp-uglifycss');
+const imageMin = require('gulp-imagemin');
 
 // Constantes de trabajo
 const files = {
@@ -19,6 +20,7 @@ const files = {
     htmlPath: 'dist/**/*.html',
     jsPath: 'src/js/**/*.js',
     cssPath: 'dist/css/*.css',
+    imagePath: 'src/imgs/*.jpg'
 }
 
 
@@ -39,7 +41,7 @@ function jsTask() {
 
 function minifyCssTask() {
     return src(files.cssPath)
-        .pipe(uglifycss({
+        .pipe(uglifyCss({
             "uglyComments": true
         }))
         .pipe(dest('dist/css/build/'));
@@ -51,8 +53,14 @@ function minifyCssTask() {
 function watchTask() {
     watch(
         [files.scssPath, files.htmlPath, files.jsPath],
-        series(scssTask, minifyCssTask, jsTask, reloadTask)
+        series(scssTask, minifyCssTask, jsTask, imageTask, reloadTask)
     )
+}
+
+function imageTask() {
+    return src(files.imagePath)
+        .pipe(imageMin())
+        .pipe(dest('dist/imgs/'))
 }
 
 
@@ -71,4 +79,4 @@ function reloadTask(d) {
     d();
 }
 
-exports.default = series(scssTask, minifyCssTask, jsTask, serveTask, watchTask);
+exports.default = series(scssTask, minifyCssTask, imageTask, jsTask, serveTask, watchTask);
