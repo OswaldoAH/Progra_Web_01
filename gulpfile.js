@@ -11,18 +11,16 @@ const {
 const sass = require('gulp-sass');
 const browserSync = require('browser-sync').create();
 const uglify = require('gulp-uglify');
+const uglifycss = require('gulp-uglifycss');
 
 // Constantes de trabajo
 const files = {
     scssPath: 'src/scss/**/*.scss',
     htmlPath: 'dist/**/*.html',
     jsPath: 'src/js/**/*.js',
+    cssPath: 'dist/css/*.css',
 }
 
-function helloWorldTask(result) {
-    console.log("hello world! :D");
-    result();
-}
 
 /**
  * Compilar los archivos de sass en estilos en cascada para el navegador (CSS)
@@ -39,13 +37,21 @@ function jsTask() {
         .pipe(dest('dist/js/'));
 }
 
+function minifyCssTask() {
+    return src(files.cssPath)
+        .pipe(uglifycss({
+            "uglyComments": true
+        }))
+        .pipe(dest('dist/css/build/'));
+}
+
 /**
  * Observar cambios en los archivos de sass para compilarlos automaticamente
  */
 function watchTask() {
     watch(
         [files.scssPath, files.htmlPath, files.jsPath],
-        series(scssTask, jsTask, reloadTask)
+        series(scssTask, minifyCssTask, jsTask, reloadTask)
     )
 }
 
@@ -65,4 +71,4 @@ function reloadTask(d) {
     d();
 }
 
-exports.default = series(scssTask, jsTask, serveTask, watchTask);
+exports.default = series(scssTask, minifyCssTask, jsTask, serveTask, watchTask);
