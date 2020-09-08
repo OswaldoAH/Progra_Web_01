@@ -1,14 +1,22 @@
 // Importar las funciones específicas de la API de gulp que vamos a utilizar
-const { src, dest, series, parallel, watch } = require('gulp');
+const {
+    src,
+    dest,
+    series,
+    parallel,
+    watch
+} = require('gulp');
 
 // Importar los paquetes con los que vamos a trabajar
 const sass = require('gulp-sass');
 const browserSync = require('browser-sync').create();
+const uglify = require('gulp-uglify');
 
 // Constantes de trabajo
 const files = {
     scssPath: 'src/scss/**/*.scss',
     htmlPath: 'dist/**/*.html',
+    jsPath: 'src/js/**/*.js',
 }
 
 function helloWorldTask(result) {
@@ -25,14 +33,19 @@ function scssTask() {
         .pipe(dest('dist/css'));
 }
 
+function jsTask() {
+    return src(files.jsPath)
+        .pipe(uglify())
+        .pipe(dest('dist/js/'));
+}
 
 /**
  * Observar cambios en los archivos de sass para compilarlos automaticamente
  */
 function watchTask() {
     watch(
-        [files.scssPath, files.htmlPath],
-        series(scssTask, reloadTask)
+        [files.scssPath, files.htmlPath, files.jsPath],
+        series(scssTask, jsTask, reloadTask)
     )
 }
 
@@ -52,4 +65,4 @@ function reloadTask(d) {
     d();
 }
 
-exports.default = series(scssTask, serveTask, watchTask);
+exports.default = series(scssTask, jsTask, serveTask, watchTask);
