@@ -1,0 +1,1 @@
+function sum(){var e=parseInt(document.getElementById("number1").value),n=parseInt(document.getElementById("number2").value);alert("La suma es: "+(e+n))}
